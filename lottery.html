@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8">
+		<title>老虎机</title>
+		<style type="text/css">
+			* {
+				padding: 0;
+				margin: 0;
+			}
+			
+			.container {
+				width: 512px;
+				height: 512px;
+				border: 1px solid #000;
+				margin: 50px auto;
+			}
+			
+			table {
+				height: 100%;
+				width: 100%;
+			}
+			
+			tr {
+				width: 100%;
+				height: 128px;
+			}
+			
+			td {
+				width: 25%;
+				height: 128px;
+			}
+			
+			img {
+				width: 100%;
+				height: 100%;
+				display: block;
+			}
+			
+			.focus {
+				font-size: 68px;
+				background: #000;
+				font-weight: 700;
+				text-align: center;
+				color: #fff;
+				cursor: pointer;
+			}
+			
+			.move {
+				background: #000;
+			}
+			
+			#result {
+				width: 512px;
+				margin: 10px auto;
+				text-align: center;
+				font-size: 26px;
+				color: #00A1F5;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div class="container">
+			<table cellpadding="0" cellspacing="0">
+				<tr>
+					<td class="img1" prize="刘亦菲">
+						<img src="images/1.jpg" />
+					</td>
+					<td class="img2" prize="阿尔芭杰西卡">
+						<img src="images/2.jpg" />
+					</td>
+					<td class="img3" prize="艾莉婕">
+						<img src="images/3.jpg" />
+					</td>
+					<td class="img4" prize="林允儿">
+						<img src="images/4.jpg" />
+					</td>
+				</tr>
+				<tr>
+					<td class="img5" prize="迪丽热巴">
+						<img src="images/5.jpg" />
+					</td>
+					<td colspan="2" rowspan="2" class="focus" id="start">点我</td>
+					<td class="img6" prize="景甜">
+						<img src="images/6.jpg" />
+					</td>
+				</tr>
+				<tr>
+					<td class="img4" prize="刘亦菲">
+						<img src="images/1.jpg" />
+					</td>
+					<td class="img3" prize="迪丽热巴">
+						<img src="images/5.jpg" />
+					</td>
+				</tr>
+				<tr>
+					<td class="img5" prize="艾莉婕">
+						<img src="images/3.jpg" />
+					</td>
+					<td class="img2" prize="阿尔芭杰西卡">
+						<img src="images/2.jpg" />
+					</td>
+					<td class="img6" prize="景甜">
+						<img src="images/6.jpg" />
+					</td>
+					<td class="img1" prize="林允儿">
+						<img src="images/4.jpg" />
+					</td>
+				</tr>
+			</table>
+		</div>
+		<div id="result"></div>
+		<script type="text/javascript">
+			var startNum = 0;
+			var run = false;
+			document.getElementById("start").onclick = function() {
+				!run && running();
+			};
+
+			function running() {
+				run = true;
+				var td = document.getElementsByTagName('td'),
+					length = td.length;
+				var randomLength = random(3 * length, 4 * length);
+				var num = startNum,
+					count = 0;
+				var timer = setInterval(function() {
+					for(var i = 0; i < length; i++) {
+						td[i].style.opacity = 1;
+					}
+					td[num].style.opacity = 0.3;
+					if(count > randomLength) {
+						clearInterval(timer);
+						startNum = num;
+						run = false;
+						document.getElementById("result").innerHTML = td[num].getAttribute('prize');
+					}
+					var arr = [1, 2, 3, 6, 0, , 8, 4, 12, 7, 9, 10, 11];
+					num = arr[num];
+					count++;
+				}, 50);
+			}
+
+			function random(min, max) {
+				return Math.floor(min + Math.random() * (max - min));
+			}
+		</script>
+
+	</body>
+
+</html>

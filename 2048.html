@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title>2048</title>
+		<style type="text/css">
+			* {
+				margin: 0;
+				padding: 0;
+			}
+			
+			#box {
+				background: #BBADA0;
+				margin: 36px auto;
+				width: 500px;
+				height: 500px;
+				border-radius: 8px;
+				position: relative;
+			}
+			
+			.grid-cell {
+				position: absolute;
+				width: 100px;
+				height: 100px;
+				line-height: 100px;
+				background: #ccc0b3;
+				color: #FFFFFF;
+				text-align: center;
+				font-size: 36px;
+				border-radius: 8px;
+				transition: background .2s;
+			}
+			
+			.tc{
+				text-align: center;
+			}
+			.f18{
+				font-size: 18px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div id="box"></div>
+		<div class="tc f18">通过WASD键进行控制</div>
+		<script type="text/javascript">
+			var grids = [];
+			var win = window;
+			var doc = document;
+
+			var colorObj = {
+				"2": '#eee3da',
+				"4": '#ede0c8',
+				"8": '#f2b179',
+				"16": '#f59563',
+				"32": '#f67c5f',
+				"64": '#f65e3b',
+				"128": '#edcf72',
+				"256": '#edcc61',
+				"512": '#9c0',
+				"1024": '#33b5e5',
+				"2048": '#09c',
+				"4096": '#a6c',
+				"8192": '#93c'
+			};
+
+			win.onload = function() {
+				initGrid();
+				getRandom();
+				getRandom();
+				doc.onkeyup = function() {
+					var directions = {
+						"65": "Left",
+						"68": "Right",
+						"87": "Top",
+						"83": "Bottom"
+					};
+					var n = parseInt(event.keyCode);
+					if(directions[n]) {
+						var pregrids = [];
+						for(var i = 0; i < 4; i++) {
+							pregrids[i] = [];
+							for(var j = 0; j < 4; j++) {
+								pregrids[i][j] = grids[i][j];
+							}
+						}
+						doMove(directions[n]);
+						setGrid();
+						hasMove(pregrids) && getRandom();
+					}
+				};
+			};
+
+			function hasMove(pregrids) {
+				for(var i = 0; i < 4; i++) {
+					for(var j = 0; j < 4; j++) {
+						if(pregrids[i][j] !== grids[i][j]) {
+							return true;
+						}
+					}
+				}
+				return false;
+			}
+
+			function initGrid() {
+				var sHtml = "";
+				var styleStr = "";
+				for(var i = 0; i < 4; i++) {
+					grids[i] = [];
+					for(var j = 0; j < 4; j++) {
+						grids[i][j] = 0;
+						styleStr = "left:" + (20 + j * 120) + "px;top:" + (20 + i * 120) + "px;";
+						sHtml += '<div class="grid-cell" style="' + styleStr + '"></div>';
+					}
+				}
+
+				doc.getElementById("box").innerHTML = sHtml;
+			}
+
+			function setGrid() {
+				var list = doc.querySelectorAll('.grid-cell');
+				for(var i = 0; i < 4; i++) {
+					for(var j = 0; j < 4; j++) {
+						var el = list[i * 4 + j];
+						var num = grids[i][j];
+						el.innerHTML=num||'';
+						el.style.background = colorObj[num]||'#ccc0b3';						
+					}
+				}
+			}
+
+			function getRandom() {
+				var n = Math.floor(Math.random() * 16);
+				var x = Math.floor(n / 4);
+				var y = n % 4;
+				if(grids[x][y] == 0) {
+					var el = doc.querySelectorAll('.grid-cell')[n];
+					var num = [2, 4][Math.floor(Math.random() * 2)];
+					grids[x][y] = num;
+					el.innerHTML = num;
+					el.style.background = colorObj[num];
+					isAllHas()&&checkIsOver();					
+				} else {
+					getRandom();
+				}
+			}
+
+			function isAllHas() {
+				for(var i = 0; i < 4; i++) {
+					for(var j = 0; j < 4; j++) {
+						if(grids[i][j] === 0) {
+							return false;
+						}
+					}
+				}
+				return true;
+			}
+
+			function checkIsOver() {
+				if(!canMoveLeft() && !canMoveUp()) {
+					setGrid();
+					doc.onkeyup = null;
+					alert("GAME OVER");
+				}
+			}
+
+			function canMoveLeft() {
+				for(var i = 0; i < 4; i++) {
+					var pre = null;
+					for(var j = 0; j < 4; j++) {
+						if(grids[i][j] == pre) {
+							return true;
+						} else {
+							pre = grids[i][j];
+						}
+					}
+				}
+				return false;
+			}
+
+			function canMoveUp() {
+				for(var i = 0; i < 4; i++) {
+					var pre = null;
+					for(var j = 0; j < 4; j++) {
+						if(grids[j][i] == pre) {
+							return true;
+						} else {
+							pre = grids[j][i];
+						}
+					}
+				}
+				return false;
+			}
+
+			function doMove(direction) {
+				for(var i = 0; i < 4; i++) {
+					var fnName = 'moveOne' + direction;
+					win[fnName](i);
+				}
+			}
+
+			function moveOneLeft(n) {
+				var temp = getArr([grids[n][0], grids[n][1], grids[n][2], grids[n][3]]);
+				for(var i = 0; i < temp.length; i++) {
+					grids[n][i] = temp[i];
+				}
+				for(var i = temp.length; i < 4; i++) {
+					grids[n][i] = 0;
+				}
+			}
+
+			function moveOneRight(n) {
+				var temp = getArr([grids[n][3], grids[n][2], grids[n][1], grids[n][0]]).reverse();
+				for(var i = 0; i < 4 - temp.length; i++) {
+					grids[n][i] = 0;
+				}
+				for(var i = 0; i < temp.length; i++) {
+					grids[n][4 - temp.length + i] = temp[i];
+				}
+			}
+
+			function moveOneTop(n) {
+				var temp = getArr([grids[0][n], grids[1][n], grids[2][n], grids[3][n]]);
+				for(var i = 0; i < temp.length; i++) {
+					grids[i][n] = temp[i];
+				}
+				for(var i = temp.length; i < 4; i++) {
+					grids[i][n] = 0;
+				}
+			}
+
+			function moveOneBottom(n) {
+				var temp = getArr([grids[3][n], grids[2][n], grids[1][n], grids[0][n]]).reverse();
+				for(var i = 0; i < 4 - temp.length; i++) {
+					grids[i][n] = 0;
+				}
+				for(var i = 0; i < temp.length; i++) {
+					grids[4 - temp.length + i][n] = temp[i];
+				}
+			}
+
+			function getArr(arr) {
+				var pre = null;
+				var temp = [];
+				for(var i = 0; i < 4; i++) {
+					if(arr[i] > 0) {
+						if(arr[i] === pre) {
+							temp[temp.length - 1] = 2 * arr[i];
+							pre = null;
+						} else {
+							pre = arr[i];
+							temp.push(arr[i]);
+						}
+					}
+				}
+				return temp;
+			}
+		</script>
+	</body>
+
+</html>
