@@ -43,9 +43,12 @@
 				display: inline-block;
 			}
 			
+			.ml15 {
+				margin-left: 15px;
+			}
+			
 			#steps {
 				color: #FF0000;
-				margin-left: 15px;
 				width: 60px;
 				text-align: center;
 			}
@@ -55,19 +58,38 @@
 				margin-top: 30px;
 			}
 			
-			#result {
-				margin-left: 15px;
+			.mask {
+				position: absolute;
+				top: 0;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				background: #000000;
+				opacity: 0.5;
+				display: none;
+			}
+			
+			.img {
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				border-radius: 5px;
+				display: none;
 			}
 		</style>
 	</head>
 
 	<body>
 		<div id="btns">
-			<div class="btn" id="three">Start</div>
-			<div class="btn" id="steps">0</div>
-			<div class="btn" id="result">In the game</div>
+			<div class="btn" id="three">开始游戏</div>
+			<div class="btn ml15" id="steps">0</div>
+			<div class="btn ml15" id="show">查看原图</div>
+			<div class="btn ml15" id="result">游戏进行中</div>
 		</div>
 		<div id="grids"></div>
+		<div class="mask"></div>
+		<img src="images/1.jpg" class="img" width="360px" height="360px" />
 		<script type="text/javascript">
 			var gamenum, cur, myid, sum, step = 0;
 			var cellWidth = 100;
@@ -77,9 +99,19 @@
 
 			window.onload = function() {
 				init(3);
-				document.getElementById("three").onclick = function() {
+				var mask = document.querySelectorAll(".mask")[0];
+				var img = document.querySelectorAll(".img")[0]
+				document.getElementById("three").addEventListener('click', function() {
 					init(3);
-				};
+				});
+				document.getElementById("show").addEventListener('click', function() {
+					mask.style.display = 'block';
+					img.style.display = 'block';
+				});
+				mask.addEventListener('click', function() {
+					mask.style.display = 'none';
+					img.style.display = 'none';
+				});
 			}
 
 			function init(n) {
@@ -88,7 +120,7 @@
 				sum = cur;
 				step = 0;
 				setEle();
-				document.getElementById("result").innerHTML = "In the game";
+				document.getElementById("result").innerHTML = "游戏进行中";
 			}
 
 			function setEle() {
@@ -233,7 +265,7 @@
 					}
 				}
 				if(win) {
-					document.getElementById("result").innerHTML = "You win";
+					document.getElementById("result").innerHTML = "你成功了";
 					gameStatus = 'over';
 				}
 			}

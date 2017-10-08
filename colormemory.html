@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title>颜色记忆游戏</title>
+		<style type="text/css">
+			.grid-cell {
+				width: 100px;
+				height: 100px;
+				background: #CCCCCC;
+				position: absolute;
+				border-radius: 10px;
+				cursor: pointer;
+			}
+			
+			.btn-group {
+				padding: 20px;
+				overflow: hidden;
+			}
+			
+			.btn {
+				font-family: "微软雅黑";
+				float: left;
+				height: 40px;
+				line-height: 40px;
+				padding: 0px 10px;
+				background: #CCCCCC;
+				color: #FFFFFF;
+				border-radius: 5px;
+				font-size: 20px;
+				font-weight: bold;
+				cursor: pointer;
+				margin-right: 10px;
+				-webkit-user-select: none;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div class="btn-group">
+			<div class="btn" id="start">开始游戏</div>
+			<div class="btn" id="show">查看答案</div>
+			<div class="btn" id="time"></div>
+		</div>
+		<div id="grids"></div>
+		<script type="text/javascript">
+			var gamenum = 4;
+			var times = 0;
+			var timer = null;
+			var gametimes = 15;
+			var gameStatus = 'ready';
+			var NUMSTR = '01234567';			
+			var curNum = null;
+			var color = [
+				'#000000',
+				'#FFFF00',
+				'#e9573f',
+				'#8cc152',
+				'#37bc9b',
+				'#4a89dc',
+				'#967adc',
+				'#ec87c0',
+				'#434a54'
+			];
+
+			window.onload = function() {
+				init();
+				document.getElementById("start").onclick = function() {
+					start();
+					setTimes();
+					if(!window.isSetClick){
+						setClick();
+						window.isSetClick=true;
+					}
+				};
+				document.getElementById("show").onclick = function() {
+					show();
+				};
+			};
+
+			function init() {
+				var html = '';
+				for(var i = 0; i < gamenum; i++) {
+					for(var j = 0; j < gamenum; j++) {
+						var left = 20 + j * 120 + 'px';
+						var top = 120 + i * 120 + 'px';
+						var stylestr = 'left:' + left + ';top:' + top;
+						html += '<div class="grid-cell" style="' + stylestr + '"></div>';
+					}
+				}
+				document.getElementById("grids").innerHTML = html;
+				document.getElementById("time").innerHTML = '' + gametimes;
+			}
+
+			function start() {
+				times = 0;
+				curNum=null;
+				var arr = getRandom();
+				var list = document.getElementById("grids").getElementsByClassName('grid-cell');
+				for(var i = 0; i < list.length; i++) {
+					var el = list[i];
+					el.style.backgroundColor = color[arr[i]];
+					el.dataset.num = arr[i];
+				}
+			}
+
+			function setClick() {
+				console.log("log");
+				var list = document.getElementById("grids").getElementsByClassName('grid-cell');
+				for(var i = 0; i < list.length; i++) {
+					list[i].onclick = function() {
+						if(gameStatus === 'doing') {
+							var self = this;
+							self.style.background = color[this.dataset.num];
+							if(curNum) {
+								if(curNum == this.dataset.num) {
+									if(++times > gamenum*2-1) {
+										alert("你成功了");
+										gameStatus = 'done';
+									}
+								} else {
+									alert("游戏结束");
+									gameStatus = 'done';
+								}
+								curNum=null;
+							} else {
+								curNum = this.dataset.num;
+							}
+						}
+					};
+				}
+			}
+
+			function clearColor() {
+				var list = document.getElementById("grids").getElementsByClassName('grid-cell');
+				for(var i = 0; i < list.length; i++) {
+					var el = list[i];
+					el.style.backgroundColor = '#CCCCCC';
+				}
+			}
+
+			function getRandom() {
+				var numstr = NUMSTR + NUMSTR;
+				return numstr.split('').sort(function() {
+					return Math.random() - 0.5;
+				});
+			}
+
+			function setTimes() {
+				clearInterval(timer);
+				document.getElementById("time").innerHTML = gametimes.toString();
+				timer = setInterval(function() {
+					var num = parseInt(document.getElementById("time").innerHTML);
+					num--;
+					document.getElementById("time").innerHTML = num.toString().replace(/^(\d)$/, "0$1");
+					if(num == 0) {
+						clearColor();
+						clearInterval(timer);
+						gameStatus = 'doing';
+					}
+				}, 1000);
+			}
+
+			function show() {
+				var list = document.getElementById("grids").getElementsByClassName('grid-cell');
+				for(var i = 0; i < list.length; i++) {
+					var el = list[i];
+					el.style.backgroundColor = color[el.dataset.num];
+				}
+			}
+		</script>
+	</body>
+
+</html>

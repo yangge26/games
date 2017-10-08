@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>五子棋</title>
+		<style type="text/css">
+			body {
+				background-image: url(images/bg.jpg);
+			}
+			
+			* {
+				font-family: "微软雅黑";
+				margin: 0;
+				padding: 0;
+			}
+			
+			#grids {
+				margin: 0 auto;
+				width: 960px;
+				position: relative;
+			}
+			
+			.grid-cell {
+				background: #CCC0B3;
+				cursor: pointer;
+				position: absolute;
+			}
+			
+			.btn {
+				background: #00A1F5;
+				color: #FFFFFF;
+				font-size: 18px;
+				border-radius: 6px;
+				width: 100px;
+				height: 40px;
+				line-height: 40px;
+				text-align: center;
+				font-weight: bold;
+				cursor: pointer;
+			}
+			
+			#result {
+				position: absolute;
+				top: 200px;
+				right: 20px;
+			}
+			
+			#restart {
+				position: absolute;
+				top: 300px;
+				right: 20px;
+			}
+		</style>
+	</head>
+
+	<body>
+
+		<div id="grids">
+			<div id="result" class="btn">正在进行</div>
+			<div id="restart" class="btn">重新开始</div>
+		</div>
+
+		<script type="text/javascript">
+			var colors = ['#000000', '#FFFFFF'],
+				SIZE = 10,
+				SIDE = 56,
+				grids = [],
+				isOver = false,
+				count = 0;
+			window.onload = function() {
+				setGrid();
+
+				document.getElementById("restart").onclick = function() {
+					count = 0;
+					isOver = false;
+					document.getElementById("result").innerHTML = '正在进行';
+					clearGrid();
+				};
+
+			};
+
+			function clearGrid() {
+				var list = document.querySelectorAll('.grid-cell');
+				for(var i = 0; i < list.length; i++) {
+					list[i].style.background = '#AAAAAA';
+				}
+				for(var i = 0; i < SIZE; i++) {
+					grids[i] = [];
+					for(var j = 0; j < SIZE; j++) {
+						grids[i][j] = 0;
+					}
+				}
+			}
+
+			function setGrid() {
+				var html = '';
+				for(var i = 0; i < SIZE; i++) {
+					grids[i] = [];
+					for(var j = 0; j < SIZE; j++) {
+						var left = 10 + i * (SIDE * 1 + 5 * 1) + 'px';
+						var top = 10 + j * (SIDE * 1 + 5 * 1) + 'px';
+						var stylestr = 'left:' + left + ';top:' + top + ';width:' + SIDE + 'px;height:' + SIDE + 'px;border-radius:' + SIDE / 2 + 'px;';
+						html += '<div class="grid-cell" style="' + stylestr + '" data-x="' + i + '" data-y="' + j + '"></div>';
+						grids[i][j] = 0;
+					}
+				}
+				var nowHtml = document.getElementById("grids").innerHTML;
+				document.getElementById("grids").innerHTML = nowHtml + html;
+				setClick();
+			}
+
+			function setClick() {
+				var list = document.querySelectorAll('.grid-cell');
+				for(var i = 0, len = list.length; i < len; i++) {
+					list[i].addEventListener('click', function() {
+						var self = this;
+						var x = self.dataset.x;
+						var y = self.dataset.y;
+						if(grids[x][y] === 0 && !isOver) {
+							var n = (count++) % 2;
+							self.style.background = colors[n];
+							grids[x][y] = n * 1 + 1;
+							if(count > 8 && checkGame(x, y, n * 1 + 1)) {
+								setWinner(n);
+							}
+						}
+					});
+				}
+			}
+
+			function setWinner(n) {
+				var str = n === 0 ? '黑' : '白';
+				document.getElementById("result").innerHTML = str + '方胜利';
+				isOver = true;
+			}
+
+			function checkGame(x, y, num) {
+				var a1 = getArr1(x, y);
+				var a2 = getArr2(x, y);
+				var a3 = getArr3(x, y);
+				var a4 = getArr4(x, y);
+				if(hasFive(a1, num) || hasFive(a2, num) || hasFive(a3, num) || hasFive(a4, num)) {
+					return true;
+				}
+			}
+
+			function isRight(n) {
+				return n >= 0 && n < SIZE;
+			}
+
+			function getArr1(x, y) {
+				var arr = [];
+				for(var i = -4; i <= 4; i++) {
+					var n = i * 1 + x * 1;
+					if(isRight(n)) {
+						arr.push(grids[n][y]);
+					}
+				}
+				return arr;
+			}
+
+			function getArr2(x, y) {
+				var arr = [];
+				for(var i = -4; i <= 4; i++) {
+					var n = i * 1 + y * 1;
+					if(isRight(n)) {
+						arr.push(grids[x][n]);
+					}
+				}
+				return arr;
+			}
+
+			function getArr3(x, y) {
+				var arr = [];
+				for(var i = -4; i <= 4; i++) {
+					var m = i * 1 + x * 1;
+					var n = i * 1 + y * 1;
+					if(isRight(m) && isRight(n)) {
+						arr.push(grids[m][n]);
+					}
+				}
+				return arr;
+			}
+
+			function getArr4(x, y) {
+				var arr = [];
+				for(var i = -4; i <= 4; i++) {
+					var m = i * 1 + x * 1;
+					var n = y - i;
+					if(isRight(m) && isRight(n)) {
+						arr.push(grids[m][n]);
+					}
+				}
+				return arr;
+			}
+
+			function hasFive(a, num) {
+				var sum = 0;
+				for(var i = 0; i < a.length; i++) {
+					if(a[i] === num) {
+						if(++sum === 5) {
+							return true;
+						}
+					} else {
+						sum = 0;
+					}
+				}
+				return false;
+			}
+		</script>
+	</body>
+
+</html>
