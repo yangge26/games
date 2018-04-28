@@ -8,3 +8,4 @@
 - [五子棋](https://yangge26.github.io/games/fivestar.html)
 - [颜色记忆游戏](https://yangge26.github.io/games/colormemory.html)
 - [扫雷游戏](https://yangge26.github.io/games/mine.html)
+- [色子概率](https://yangge26.github.io/games/dice.html)
