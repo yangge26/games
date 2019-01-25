@@ -247,9 +247,11 @@
 
                 function showAllNumAndEmpty() {
                     for (var i = 0; i < list.length; i++) {
+                        open[i] = 1
                         if (grid[i] === 0) {
                             list[i].className = 'item empty'
-                        } else {
+                        } else if (grid[i] !== IAMMINE) {
+                            list[i].innerHTML = grid[i]
                             list[i].className = 'item num'
                         }
                     }

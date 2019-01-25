@@ -50,8 +50,14 @@
             var times = 0
             var timer = null
 
+            const GAME_STATUS_CODE = {
+                OVER: 'over',
+                DOING: 'doing',
+                READY: 'ready'
+            }
+
             // 游戏状态
-            var gameStatus = 'ready'
+            var gameStatus = GAME_STATUS_CODE.READY
 
             var curNum = null
             var color = [
@@ -70,17 +76,12 @@
 
             window.onload = function() {
                 init()
-                document.getElementById('start').onclick = () => {
+                setClick()
+                document.getElementById('start').addEventListener('click', () => {
                     start()
                     setTimes()
-                    if (!window.isSetClick) {
-                        setClick()
-                        window.isSetClick = true
-                    }
-                }
-                document.getElementById('show').onclick = () => {
-                    show()
-                }
+                })
+                document.getElementById('show').addEventListener('click', () => show())
             }
 
             function init() {
@@ -102,7 +103,7 @@
             function start() {
                 times = 0
                 curNum = null
-                var arr = getRandom()
+                var arr = getRandomArr()
                 var list = cellEls
                 for (var i = 0; i < list.length; i++) {
                     var el = list[i]
@@ -115,37 +116,38 @@
                 var list = cellEls
                 for (var i = 0; i < list.length; i++) {
                     list[i].onclick = function() {
-                        if (gameStatus === 'doing') {
+                        if (gameStatus === GAME_STATUS_CODE.DOING) {
                             var self = this
-                            self.style.background = color[this.dataset.num]
+                            self.style.background = color[self.dataset.num]
                             if (curNum) {
-                                if (curNum == this.dataset.num) {
+                                if (curNum == self.dataset.num) {
                                     if (++times > GAMENUM * 2 - 1) {
-                                        alert('你成功了')
-                                        gameStatus = 'done'
+                                        gameover('你成功了')
                                     }
                                 } else {
-                                    alert('游戏结束')
-                                    gameStatus = 'done'
+                                    gameover('游戏结束')
                                 }
                                 curNum = null
                             } else {
-                                curNum = this.dataset.num
+                                curNum = self.dataset.num
                             }
                         }
                     }
                 }
             }
 
+            function gameover(tips) {
+                gameStatus = GAME_STATUS_CODE.OVER
+                setTimeout(() => alert(tips), 100)
+            }
+
             function clearColor() {
-                var list = cellEls
-                for (var i = 0; i < list.length; i++) {
-                    var el = list[i]
-                    el.style.backgroundColor = '#CCCCCC'
+                for (let item of cellEls) {
+                    item.style.backgroundColor = '#CCCCCC'
                 }
             }
 
-            function getRandom() {
+            function getRandomArr() {
                 let half = (GAMENUM * GAMENUM) / 2
                 let nums = new Array(half).fill(0).map((i, index) => i + index)
                 return [...nums, ...nums].sort(() => Math.random() - 0.5)
@@ -158,20 +160,18 @@
                 timer = setInterval(() => {
                     var num = parseInt(timeEl.innerHTML)
                     num--
-                    timeEl.innerHTML = num.toString().replace(/^(\d)$/, '0$1')
+                    timeEl.innerHTML = num.toString().padStart(2, '0')
                     if (num == 0) {
                         clearColor()
                         clearInterval(timer)
-                        gameStatus = 'doing'
+                        gameStatus = GAME_STATUS_CODE.DOING
                     }
                 }, 1000)
             }
 
             function show() {
-                var list = cellEls
-                for (var i = 0; i < list.length; i++) {
-                    var el = list[i]
-                    el.style.backgroundColor = color[el.dataset.num]
+                for (let item of cellEls) {
+                    item.style.backgroundColor = color[item.dataset.num]
                 }
             }
         </script>

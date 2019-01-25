@@ -90,9 +90,9 @@
         <script type="text/javascript">
             var startNum = 0
             var run = false
-            document.getElementById('start').onclick = function() {
+            document.getElementById('start').addEventListener('click', () => {
                 !run && running()
-            }
+            })
 
             function running() {
                 run = true
