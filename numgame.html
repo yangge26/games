@@ -97,23 +97,10 @@
             }
 
             function hasTwo() {
-                var num = document.getElementById('num').value
-                var arr = num.toString().split('')
-                var obj = {}
-                for (var i = 0; i < arr.length; i++) {
-                    var t = obj[arr[i]]
-                    if (t) {
-                        obj[arr[i]] = t + 1
-                    } else {
-                        obj[arr[i]] = 1
-                    }
-                }
-                for (var key in obj) {
-                    if (obj[key] > 1) {
-                        return true
-                    }
-                }
-                return false
+                const num = document.getElementById('num').value
+                const arr = num.toString().split('')
+                const res = Array.from(new Set(arr))
+                return arr.length !== res.length
             }
 
             function show() {

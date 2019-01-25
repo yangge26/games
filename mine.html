@@ -16,14 +16,14 @@
             }
 
             .item {
+                box-sizing: border-box;
                 width: 30px;
                 height: 30px;
                 line-height: 30px;
                 border-radius: 3px;
                 background: #aaaaaa;
                 text-align: center;
-                font-size: 20px;
-                font-weight: 600;
+                font-size: 18px;
                 color: #ffffff;
                 position: absolute;
                 cursor: pointer;
@@ -69,6 +69,7 @@
                 var open = []
                 var list = null
                 var isOver = false
+                const IAMMINE = 10
 
                 initGrid()
                 setMineNum()
@@ -76,7 +77,7 @@
 
                 function initGrid() {
                     for (var i = 0; i < mineNum; i++) {
-                        grid.push(10)
+                        grid.push(IAMMINE)
                         open.push(0)
                     }
 
@@ -118,7 +119,7 @@
                     for (var i = 0; i < arr.length; i++) {
                         var temp = index + arr[i]
                         if (temp >= 0 && temp < size * size) {
-                            if (grid[temp] === 10) {
+                            if (grid[temp] === IAMMINE) {
                                 count++
                             }
                         }
@@ -158,9 +159,10 @@
 
                             var gridNum = parseInt(this.dataset.grid)
                             if (ev.button === 0) {
+                                list[num].classList.remove('confirm')
                                 if (gridNum === 0) {
                                     isEmpty(num)
-                                } else if (gridNum === 10) {
+                                } else if (gridNum === IAMMINE) {
                                     showAllMines()
                                 } else {
                                     isNum(num)
@@ -240,8 +242,16 @@
                             b = false
                         }
                     }
-                    if (b) {
-                        showWin()
+                    b && showWin()
+                }
+
+                function showAllNumAndEmpty() {
+                    for (var i = 0; i < list.length; i++) {
+                        if (grid[i] === 0) {
+                            list[i].className = 'item empty'
+                        } else {
+                            list[i].className = 'item num'
+                        }
                     }
                 }
 
@@ -256,6 +266,7 @@
 
                 function showWin() {
                     isOver = true
+                    showAllNumAndEmpty()
                     setTimeout(() => alert('win'), 300)
                 }
             })()
