@@ -1,262 +1,298 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>2048</title>
+        <style type="text/css">
+            * {
+                margin: 0;
+                padding: 0;
+            }
 
-	<head>
-		<meta charset="UTF-8">
-		<title>2048</title>
-		<style type="text/css">
-			* {
-				margin: 0;
-				padding: 0;
-			}
-			
-			#box {
-				background: #BBADA0;
-				margin: 36px auto;
-				width: 500px;
-				height: 500px;
-				border-radius: 8px;
-				position: relative;
-			}
-			
-			.grid-cell {
-				position: absolute;
-				width: 100px;
-				height: 100px;
-				line-height: 100px;
-				background: #ccc0b3;
-				color: #FFFFFF;
-				text-align: center;
-				font-size: 36px;
-				border-radius: 8px;
-				transition: background .2s;
-			}
-			
-			.tc{
-				text-align: center;
-			}
-			.f18{
-				font-size: 18px;
-			}
-		</style>
-	</head>
+            #box {
+                background: #bbada0;
+                margin: 36px auto;
+                width: 500px;
+                height: 500px;
+                border-radius: 8px;
+                position: relative;
+            }
 
-	<body>
-		<div id="box"></div>
-		<div class="tc f18">通过WASD键进行控制</div>
-		<script type="text/javascript">
-			var grids = [];
-			var win = window;
-			var doc = document;
+            .grid-cell {
+                position: absolute;
+                width: 100px;
+                height: 100px;
+                line-height: 100px;
+                background: #ccc0b3;
+                color: #ffffff;
+                text-align: center;
+                font-size: 36px;
+                border-radius: 8px;
+                transition: all 0.2s linear;
+            }
 
-			var colorObj = {
-				"2": '#eee3da',
-				"4": '#ede0c8',
-				"8": '#f2b179',
-				"16": '#f59563',
-				"32": '#f67c5f',
-				"64": '#f65e3b',
-				"128": '#edcf72',
-				"256": '#edcc61',
-				"512": '#9c0',
-				"1024": '#33b5e5',
-				"2048": '#09c',
-				"4096": '#a6c',
-				"8192": '#93c'
-			};
+            .tc {
+                text-align: center;
+            }
+            .f18 {
+                font-size: 18px;
+            }
+        </style>
+    </head>
 
-			win.onload = function() {
-				initGrid();
-				getRandom();
-				getRandom();
-				doc.onkeyup = function() {
-					var directions = {
-						"65": "Left",
-						"68": "Right",
-						"87": "Top",
-						"83": "Bottom"
-					};
-					var n = parseInt(event.keyCode);
-					if(directions[n]) {
-						var pregrids = [];
-						for(var i = 0; i < 4; i++) {
-							pregrids[i] = [];
-							for(var j = 0; j < 4; j++) {
-								pregrids[i][j] = grids[i][j];
-							}
-						}
-						doMove(directions[n]);
-						setGrid();
-						hasMove(pregrids) && getRandom();
-					}
-				};
-			};
+    <body>
+        <div id="box"></div>
+        <div class="tc f18">通过WASD键进行控制</div>
+        <script type="text/javascript">
+            var grids = []
+            var win = window
+            var doc = document
 
-			function hasMove(pregrids) {
-				for(var i = 0; i < 4; i++) {
-					for(var j = 0; j < 4; j++) {
-						if(pregrids[i][j] !== grids[i][j]) {
-							return true;
-						}
-					}
-				}
-				return false;
-			}
+            // 对应格子的颜色
+            var colorObj = {
+                '2': '#eee3da',
+                '4': '#ede0c8',
+                '8': '#f2b179',
+                '16': '#f59563',
+                '32': '#f67c5f',
+                '64': '#f65e3b',
+                '128': '#edcf72',
+                '256': '#edcc61',
+                '512': '#9c0',
+                '1024': '#33b5e5',
+                '2048': '#09c',
+                '4096': '#a6c',
+                '8192': '#93c'
+            }
 
-			function initGrid() {
-				var sHtml = "";
-				var styleStr = "";
-				for(var i = 0; i < 4; i++) {
-					grids[i] = [];
-					for(var j = 0; j < 4; j++) {
-						grids[i][j] = 0;
-						styleStr = "left:" + (20 + j * 120) + "px;top:" + (20 + i * 120) + "px;";
-						sHtml += '<div class="grid-cell" style="' + styleStr + '"></div>';
-					}
-				}
+            win.onload = function() {
+                // 初始化宫格
+                initGrid()
+                // 随机出两个格子
+                setRandomGrid()
+                setRandomGrid()
+                // 键盘事件监听
+                doc.onkeydown = event => {
+                    const directions = {
+                        '65': n => moveLeft(n),
+                        '68': n => moveRight(n),
+                        '87': n => moveTop(n),
+                        '83': n => moveBottom(n)
+                    }
 
-				doc.getElementById("box").innerHTML = sHtml;
-			}
+                    const moveFn = directions[parseInt(event.keyCode)]
 
-			function setGrid() {
-				var list = doc.querySelectorAll('.grid-cell');
-				for(var i = 0; i < 4; i++) {
-					for(var j = 0; j < 4; j++) {
-						var el = list[i * 4 + j];
-						var num = grids[i][j];
-						el.innerHTML=num||'';
-						el.style.background = colorObj[num]||'#ccc0b3';						
-					}
-				}
-			}
+                    if (moveFn) {
+                        // 移动前的数据，用来对比是否移动了数据
+                        var pregrids = []
+                        for (var i = 0; i < 4; i++) {
+                            pregrids[i] = []
+                            for (var j = 0; j < 4; j++) {
+                                pregrids[i][j] = grids[i][j]
+                            }
+                        }
 
-			function getRandom() {
-				var n = Math.floor(Math.random() * 16);
-				var x = Math.floor(n / 4);
-				var y = n % 4;
-				if(grids[x][y] == 0) {
-					var el = doc.querySelectorAll('.grid-cell')[n];
-					var num = [2, 4][Math.floor(Math.random() * 2)];
-					grids[x][y] = num;
-					el.innerHTML = num;
-					el.style.background = colorObj[num];
-					isAllHas()&&checkIsOver();					
-				} else {
-					getRandom();
-				}
-			}
+                        for (let i = 0; i < 4; i++) {
+                            moveFn(i)
+                        }
 
-			function isAllHas() {
-				for(var i = 0; i < 4; i++) {
-					for(var j = 0; j < 4; j++) {
-						if(grids[i][j] === 0) {
-							return false;
-						}
-					}
-				}
-				return true;
-			}
+                        // 根据数字给宫格填充颜色
+                        setGrid()
 
-			function checkIsOver() {
-				if(!canMoveLeft() && !canMoveUp()) {
-					setGrid();
-					doc.onkeyup = null;
-					alert("GAME OVER");
-				}
-			}
+                        // 如果进行移动了，随机生出一个宫格
+                        hasMove(pregrids) && setRandomGrid()
+                    }
+                }
+            }
 
-			function canMoveLeft() {
-				for(var i = 0; i < 4; i++) {
-					var pre = null;
-					for(var j = 0; j < 4; j++) {
-						if(grids[i][j] == pre) {
-							return true;
-						} else {
-							pre = grids[i][j];
-						}
-					}
-				}
-				return false;
-			}
+            function initGrid() {
+                var sHtml = ''
+                for (var i = 0; i < 4; i++) {
+                    grids[i] = []
+                    for (var j = 0; j < 4; j++) {
+                        grids[i][j] = 0
+                        let styleStr = 'left:' + (20 + j * 120) + 'px;top:' + (20 + i * 120) + 'px;'
+                        sHtml += '<div class="grid-cell" style="' + styleStr + '"></div>'
+                    }
+                }
 
-			function canMoveUp() {
-				for(var i = 0; i < 4; i++) {
-					var pre = null;
-					for(var j = 0; j < 4; j++) {
-						if(grids[j][i] == pre) {
-							return true;
-						} else {
-							pre = grids[j][i];
-						}
-					}
-				}
-				return false;
-			}
+                doc.getElementById('box').innerHTML = sHtml
+            }
 
-			function doMove(direction) {
-				for(var i = 0; i < 4; i++) {
-					var fnName = 'moveOne' + direction;
-					win[fnName](i);
-				}
-			}
+            // 判断时候进行了移动
+            function hasMove(pregrids) {
+                for (var i = 0; i < 4; i++) {
+                    for (var j = 0; j < 4; j++) {
+                        if (pregrids[i][j] !== grids[i][j]) {
+                            return true
+                        }
+                    }
+                }
+                return false
+            }
 
-			function moveOneLeft(n) {
-				var temp = getArr([grids[n][0], grids[n][1], grids[n][2], grids[n][3]]);
-				for(var i = 0; i < temp.length; i++) {
-					grids[n][i] = temp[i];
-				}
-				for(var i = temp.length; i < 4; i++) {
-					grids[n][i] = 0;
-				}
-			}
+            // 根据数字给宫格填充颜色
+            function setGrid() {
+                var list = doc.querySelectorAll('.grid-cell')
+                for (var i = 0; i < 4; i++) {
+                    for (var j = 0; j < 4; j++) {
+                        var el = list[i * 4 + j]
+                        var num = grids[i][j]
+                        el.innerHTML = num || ''
+                        el.style.background = colorObj[num] || '#ccc0b3'
+                    }
+                }
+            }
 
-			function moveOneRight(n) {
-				var temp = getArr([grids[n][3], grids[n][2], grids[n][1], grids[n][0]]).reverse();
-				for(var i = 0; i < 4 - temp.length; i++) {
-					grids[n][i] = 0;
-				}
-				for(var i = 0; i < temp.length; i++) {
-					grids[n][4 - temp.length + i] = temp[i];
-				}
-			}
+            // 获取所有空格
+            function getEmpty() {
+                let res = []
+                for (let i = 0; i < 4; i++) {
+                    for (let j = 0; j < 4; j++) {
+                        if (grids[i][j] === 0) {
+                            res.push(4 * i + j)
+                        }
+                    }
+                }
+                return res
+            }
 
-			function moveOneTop(n) {
-				var temp = getArr([grids[0][n], grids[1][n], grids[2][n], grids[3][n]]);
-				for(var i = 0; i < temp.length; i++) {
-					grids[i][n] = temp[i];
-				}
-				for(var i = temp.length; i < 4; i++) {
-					grids[i][n] = 0;
-				}
-			}
+            function getRandom(num) {
+                return Math.floor(Math.random() * num)
+            }
 
-			function moveOneBottom(n) {
-				var temp = getArr([grids[3][n], grids[2][n], grids[1][n], grids[0][n]]).reverse();
-				for(var i = 0; i < 4 - temp.length; i++) {
-					grids[i][n] = 0;
-				}
-				for(var i = 0; i < temp.length; i++) {
-					grids[4 - temp.length + i][n] = temp[i];
-				}
-			}
+            // 随机生出一个格子
+            function setRandomGrid() {
+                // 获取所有空的宫格
+                let emptys = getEmpty()
+                // 从中选一个生成新宫格
+                var n = emptys[getRandom(emptys.length)]
+                var x = Math.floor(n / 4)
+                var y = n % 4
 
-			function getArr(arr) {
-				var pre = null;
-				var temp = [];
-				for(var i = 0; i < 4; i++) {
-					if(arr[i] > 0) {
-						if(arr[i] === pre) {
-							temp[temp.length - 1] = 2 * arr[i];
-							pre = null;
-						} else {
-							pre = arr[i];
-							temp.push(arr[i]);
-						}
-					}
-				}
-				return temp;
-			}
-		</script>
-	</body>
+                var el = doc.querySelectorAll('.grid-cell')[n]
+                // 随机生成一个2或4
+                var num = [2, 4][getRandom(2)]
+                grids[x][y] = num
+                el.innerHTML = num
+                el.style.background = colorObj[num]
+                isAllHas() && checkIsOver()
+            }
 
+            // 所有宫格都有数字
+            function isAllHas() {
+                for (var i = 0; i < 4; i++) {
+                    for (var j = 0; j < 4; j++) {
+                        if (grids[i][j] === 0) {
+                            return false
+                        }
+                    }
+                }
+                return true
+            }
+
+            // 判断游戏是否结束
+            function checkIsOver() {
+                // 不能在两个方向移动则代表游戏结束
+                if (!canMoveLeft() && !canMoveUp()) {
+                    doc.onkeydown = null
+                    alert('GAME OVER')
+                }
+            }
+
+            // 可以在水平方向移动
+            function canMoveHorizontal() {
+                for (var i = 0; i < 4; i++) {
+                    var pre = null
+                    for (var j = 0; j < 4; j++) {
+                        let item = grids[i][j]
+                        if (item === pre) {
+                            return true
+                        } else {
+                            pre = item
+                        }
+                    }
+                }
+                return false
+            }
+
+            // 可以在垂直方向移动
+            function canMoveVertical() {
+                for (var i = 0; i < 4; i++) {
+                    var pre = null
+                    for (var j = 0; j < 4; j++) {
+                        let item = grids[j][i]
+                        if (item === pre) {
+                            return true
+                        } else {
+                            pre = item
+                        }
+                    }
+                }
+                return false
+            }
+
+            function moveLeft(n) {
+                const temp = getArr(grids[n])
+                const len = temp.length
+                for (var i = 0; i < len; i++) {
+                    grids[n][i] = temp[i]
+                }
+                for (var i = len; i < 4; i++) {
+                    grids[n][i] = 0
+                }
+            }
+
+            function moveRight(n) {
+                const temp = getArr(grids[n].reverse()).reverse()
+                const len = temp.length
+                for (var i = 0; i < 4 - len; i++) {
+                    grids[n][i] = 0
+                }
+                for (var i = 0; i < len; i++) {
+                    grids[n][4 - len + i] = temp[i]
+                }
+            }
+
+            function moveTop(n) {
+                const temp = getArr(grids.map(i => i[n]))
+                const len = temp.length
+                for (var i = 0; i < len; i++) {
+                    grids[i][n] = temp[i]
+                }
+                for (var i = len; i < 4; i++) {
+                    grids[i][n] = 0
+                }
+            }
+
+            function moveBottom(n) {
+                const temp = getArr(grids.map(i => i[n]).reverse()).reverse()
+                const len = temp.length
+                for (var i = 0; i < 4 - len; i++) {
+                    grids[i][n] = 0
+                }
+                for (var i = 0; i < len; i++) {
+                    grids[4 - len + i][n] = temp[i]
+                }
+            }
+
+            // 对数据进行处理，合并相邻的相同数字
+            function getArr(arr) {
+                var pre = null
+                var temp = []
+                for (var i = 0; i < 4; i++) {
+                    if (arr[i] > 0) {
+                        if (arr[i] === pre) {
+                            temp[temp.length - 1] = 2 * arr[i]
+                            pre = null
+                        } else {
+                            pre = arr[i]
+                            temp.push(arr[i])
+                        }
+                    }
+                }
+                return temp
+            }
+        </script>
+    </body>
 </html>

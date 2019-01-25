@@ -1,101 +1,96 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>色子概率</title>
+        <style type="text/css">
+            * {
+                font-size: 20px;
+                font-family: 'microsoft yahei';
+            }
+            #val {
+                padding: 0 8px;
+                box-sizing: border-box;
+                width: 120px;
+            }
+            #show {
+                line-height: 1.8;
+            }
+        </style>
+    </head>
 
-	<head>
-		<meta charset="UTF-8">
-		<title>色子概率</title>
-		<style type="text/css">
-			*{
-				font-size: 20px;
-				font-family: "microsoft yahei";
-			}
-			#val{
-				padding: 0 8px;
-				box-sizing: border-box;
-				width: 120px;
-			}
-			#show{
-				line-height: 1.8;
-			}
-		</style>
-	</head>
+    <body>
+        <p>设置色子个数然后进行概率计算</p>
+        <label>色子个数:</label>&nbsp;<input type="text" id="val" value="3" /> <button id="btn">计算</button>
+        <div id="show"></div>
+        <script type="text/javascript">
+            document.getElementById('btn').addEventListener('click', function() {
+                var num = parseInt(document.getElementById('val').value)
+                var arr = showRate(num)
+                var sum = Math.pow(6, num)
+                var g = gcd(sum, arr[0])
+                var sHtml = '豹子&nbsp;:&nbsp;' + arr[0] / g + '/' + sum / g + '<br/>'
+                for (var i = num + 1; i < arr.length; i++) {
+                    g = gcd(sum, arr[i])
+                    sHtml += '点数' + i + '&nbsp;:&nbsp;' + arr[i] / g + '/' + sum / g + '<br/>'
+                }
+                document.getElementById('show').innerHTML = sHtml
+            })
 
-	<body>
-		<p>设置色子个数然后进行概率计算</p>
-		<label>色子个数:</label>&nbsp;<input type="text" id="val" value="3" />
-		<button id="btn">计算</button>
-		<div id="show"></div>
-		<script type="text/javascript">
-			document.getElementById("btn").addEventListener('click', function() {
-				var num = parseInt(document.getElementById("val").value);
-				var arr = showRate(num);
-				var sum = Math.pow(6, num);
-				var g = gcd(sum, arr[0]);
-				var sHtml = "豹子（色子点数一样）&nbsp;:&nbsp;" + (arr[0] / g) + "/" + (sum / g) + "<br/>";
-				for(var i = num + 1; i < arr.length; i++) {
-					g = gcd(sum, arr[i]);
-					sHtml += '点数' + i + '&nbsp;:&nbsp;' + (arr[i] / g) + "/" + (sum / g) + '<br/>';
-				}
-				document.getElementById("show").innerHTML = sHtml;
+            function showRate(count) {
+                var MYNUM = 6
+                var result = []
+                for (var i = 0; i < MYNUM * count; i++) {
+                    result[i] = 0
+                }
+                for (var i = 0; i < Math.pow(MYNUM, count); i++) {
+                    var temp = i.toString(MYNUM)
+                    if (temp.length < count) {
+                        var str = ''
+                        for (var m = 0; m < count - temp.length; m++) {
+                            str += '0'
+                        }
+                        temp = str + temp
+                    }
 
-			});
+                    var tempArr = temp.split('')
 
-			function showRate(count) {
-				var MYNUM = 6;
-				var result = [];
-				for(var i = 0; i < MYNUM * count; i++) {
-					result[i] = 0;
-				}
-				for(var i = 0; i < Math.pow(MYNUM, count); i++) {
-					var temp = i.toString(MYNUM);
-					if(temp.length < count) {
-						var str = "";
-						for(var m = 0; m < count - temp.length; m++) {
-							str += '0';
-						}
-						temp = str + temp;
-					}
+                    if (isSame(tempArr)) {
+                        result[0]++
+                    } else {
+                        var sum = tempArr.reduce(function(a, b) {
+                            return a * 1 + b * 1
+                        })
 
-					var tempArr = temp.split("");
+                        result[sum * 1 + count * 1]++
+                    }
+                }
+                return result
+            }
 
-					if(isSame(tempArr)) {
-						result[0]++;
-					} else {
-						var sum = tempArr.reduce(function(a, b) {
-							return a * 1 + b * 1;
-						});
+            function isSame(a) {
+                if (a.length < 2) {
+                    return true
+                }
 
-						result[sum * 1 + count * 1]++;
-					}
-				}
-				return result;
-			}
+                var tar = a[0]
 
-			function isSame(a) {
+                for (var i = 1; i < a.length; i++) {
+                    if (a[i] !== tar) {
+                        return false
+                    }
+                }
 
-				if(a.length === 0 || a.length === 1) {
-					return true;
-				}
+                return true
+            }
 
-				var tar = a[0];
+            function gcd(a, b) {
+                if (b === 0) {
+                    return a
+                }
 
-				for(var i = 1; i < a.length; i++) {
-					if(a[i] !== tar) {
-						return false;
-					}
-				}
-
-				return true;
-			}
-
-			function gcd(a, b) {
-				if(b === 0) {
-					return a;
-				}
-
-				return gcd(b, a % b);
-			}
-		</script>
-	</body>
-
+                return gcd(b, a % b)
+            }
+        </script>
+    </body>
 </html>

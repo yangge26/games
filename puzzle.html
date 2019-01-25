@@ -1,275 +1,299 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <meta charset="utf-8" />
+        <title>拼图游戏</title>
+        <style type="text/css">
+            body,
+            div {
+                margin: 0px;
+                padding: 0px;
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+                font-family: '微软雅黑';
+            }
 
-	<head>
-		<meta charset="utf-8">
-		<title>拼图游戏</title>
-		<style type="text/css">
-			body,
-			div {
-				margin: 0px;
-				padding: 0px;
-				-webkit-user-select: none;
-				-moz-user-select: none;
-				-ms-user-select: none;
-				user-select: none;
-				font-family: "微软雅黑";
-			}
-			
-			.grid-cell {
-				width: 100px;
-				height: 100px;
-				position: absolute;
-				border-radius: 5px;
-				cursor: pointer;
-				background-image: url(images/1.jpg);
-				background-size: 300%;
-				transition: transform 0.2s ease-out;
-				-webkit-transition: -webkit-transform 0.2s ease-out;
-				-moz-transition: -moz-transform 0.2s ease-out;
-			}
-			
-			.btn {
-				padding-left: 15px;
-				padding-right: 15px;
-				height: 40px;
-				line-height: 40px;
-				background: #CCCCCC;
-				color: #FFFFFF;
-				border-radius: 8px;
-				font-size: 20px;
-				font-weight: bold;
-				cursor: pointer;
-				display: inline-block;
-			}
-			
-			.ml15 {
-				margin-left: 15px;
-			}
-			
-			#steps {
-				color: #FF0000;
-				width: 60px;
-				text-align: center;
-			}
-			
-			#btns {
-				margin-left: 20px;
-				margin-top: 30px;
-			}
-			
-			.mask {
-				position: absolute;
-				top: 0;
-				left: 0;
-				right: 0;
-				bottom: 0;
-				background: #000000;
-				opacity: 0.5;
-				display: none;
-			}
-			
-			.img {
-				position: absolute;
-				top: 50%;
-				left: 50%;
-				transform: translate(-50%, -50%);
-				border-radius: 5px;
-				display: none;
-			}
-		</style>
-	</head>
+            .grid-cell {
+                width: 100px;
+                height: 100px;
+                position: absolute;
+                border-radius: 5px;
+                cursor: pointer;
+                background-image: url(images/1.jpg);
+                background-size: 300%;
+                transition: transform 0.2s ease-out;
+                -webkit-transition: -webkit-transform 0.2s ease-out;
+                -moz-transition: -moz-transform 0.2s ease-out;
+            }
 
-	<body>
-		<div id="btns">
-			<div class="btn" id="three">开始游戏</div>
-			<div class="btn ml15" id="steps">0</div>
-			<div class="btn ml15" id="show">查看原图</div>
-			<div class="btn ml15" id="result">游戏进行中</div>
-		</div>
-		<div id="grids"></div>
-		<div class="mask"></div>
-		<img src="images/1.jpg" class="img" width="360px" height="360px" />
-		<script type="text/javascript">
-			var gamenum, cur, myid, sum, step = 0;
-			var cellWidth = 100;
-			var dis = 5;
-			var sumWidth = cellWidth + dis;
-			var gameStatus = 'on';
+            .btn {
+                padding-left: 15px;
+                padding-right: 15px;
+                height: 40px;
+                line-height: 40px;
+                background: #cccccc;
+                color: #ffffff;
+                border-radius: 8px;
+                font-size: 20px;
+                font-weight: bold;
+                cursor: pointer;
+                display: inline-block;
+            }
 
-			window.onload = function() {
-				init(3);
-				var mask = document.querySelectorAll(".mask")[0];
-				var img = document.querySelectorAll(".img")[0]
-				document.getElementById("three").addEventListener('click', function() {
-					init(3);
-				});
-				document.getElementById("show").addEventListener('click', function() {
-					mask.style.display = 'block';
-					img.style.display = 'block';
-				});
-				mask.addEventListener('click', function() {
-					mask.style.display = 'none';
-					img.style.display = 'none';
-				});
-			}
+            .ml15 {
+                margin-left: 15px;
+            }
 
-			function init(n) {
-				gamenum = n;
-				cur = n * n;
-				sum = cur;
-				step = 0;
-				setEle();
-				document.getElementById("result").innerHTML = "游戏进行中";
-			}
+            #steps {
+                color: #ff0000;
+                width: 60px;
+                text-align: center;
+            }
 
-			function setEle() {
+            #btns {
+                margin-left: 20px;
+                margin-top: 30px;
+            }
 
-				var html = '';
-				var count = 0;
-				var b = [];
+            .mask {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: #000000;
+                opacity: 0.5;
+                display: none;
+            }
 
-				while(true) {
-					var temp = getRandom();
-					if(checkRandom(temp)) {
-						b = temp;
-						break;
-					}
-				}
+            .img {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                border-radius: 5px;
+                display: none;
+            }
+        </style>
+    </head>
 
-				for(var i = 0; i < gamenum; i++) {
-					for(var j = 0; j < gamenum; j++) {
-						if(++count < sum) {
-							var num = i * gamenum + j;
-							var left = 20 + j * sumWidth + 'px';
-							var top = cellWidth + i * sumWidth + 'px';
-							var idstr = 'cell-' + num;
-							var x = parseInt((b[num] - 1) / 3);
-							var y = parseInt((b[num] - 1) % 3);
-							var stylestr = 'left:' + left + ';top:' + top + ';background-position: -' + cellWidth * y + 'px -' + cellWidth * x + 'px;';
-							html += '<div id="' + idstr + '" class="grid-cell" data-num="' + count + '" data-b="' + b[num] + '" style="' + stylestr + '"></div>';
-						}
-					}
-				}
+    <body>
+        <div id="btns">
+            <div class="btn" id="three">开始游戏</div>
+            <div class="btn ml15" id="steps">0</div>
+            <div class="btn ml15" id="show">查看原图</div>
+            <div class="btn ml15" id="result">游戏进行中</div>
+        </div>
+        <div id="grids"></div>
+        <div class="mask"></div>
+        <img src="images/1.jpg" class="img" width="360" height="360" />
+        <script type="text/javascript">
+            var gamenum,
+                cur,
+                myid,
+                sum,
+                step = 0
+            var cellWidth = 100
+            var dis = 5
+            var sumWidth = cellWidth + dis
 
-				document.getElementById("steps").innerHTML = step;
-				document.getElementById("grids").innerHTML = html;
+            const GAMESTATUSCODE = {
+                ON: 'ON',
+                OVER: 'OVER'
+            }
+            var gameStatus = GAMESTATUSCODE.ON
 
-				setClick();
-			}
+            window.onload = function() {
+                init(3)
+                var mask = document.querySelectorAll('.mask')[0]
+                var img = document.querySelectorAll('.img')[0]
+                document.getElementById('three').addEventListener('click', function() {
+                    init(3)
+                })
+                document.getElementById('show').addEventListener('click', function() {
+                    mask.style.display = 'block'
+                    img.style.display = 'block'
+                })
+                mask.addEventListener('click', function() {
+                    mask.style.display = 'none'
+                    img.style.display = 'none'
+                })
+            }
 
-			function setClick() {
-				var list = document.getElementsByClassName('grid-cell');
-				for(var i = 0; i < sum - 1; i++) {
-					list[i].onclick = function() {
-						if(gameStatus === 'on') {
-							var n = this.dataset.num - cur;
-							moveByNum(this.id, n);
-						}
-					}
-				}
-			}
+            function init(n) {
+                gamenum = n
+                cur = n * n
+                sum = cur
+                step = 0
+                setEle()
+                document.getElementById('result').innerHTML = '游戏进行中'
+            }
 
-			//检查随机数字串是否有解
-			function checkRandom(a) {
-				var b = [],
-					count = 0;
-				for(var i = 1; i < sum; i++) {
-					b.push(getNum(a.slice(0, i), a[i]));
-				}
-				for(var i = 0; i < b.length; i++) {
-					count += b[i];
-				}
-				count = count + sum - 1;
-				return count % 2 === 0;
-			}
+            function setEle() {
+                var html = ''
+                var count = 0
+                var b = []
 
-			function getNum(a, n) {
-				var count = 0;
-				for(var i = 0; i < a.length; i++) {
-					if(a[i] < n) {
-						count++;
-					}
-				}
-				return count;
-			}
+                while (true) {
+                    var temp = getRandom()
+                    if (checkRandom(temp)) {
+                        b = temp
+                        break
+                    }
+                }
 
-			function moveByNum(id, num) {
-				var el = document.getElementById(id);
-				var x = parseInt(el.dataset.x || 0);
-				var y = parseInt(el.dataset.y || 0);
-				switch(num) {
-					case -1:
-						afterMove(el, x + sumWidth, y, id);
-						break;
-					case 1:
-						afterMove(el, x - sumWidth, y, id);
-						break;
-					case -parseInt(gamenum):
-						afterMove(el, x, y + sumWidth, id);
-						break;
-					case parseInt(gamenum):
-						afterMove(el, x, y - sumWidth, id);;
-						break;
-					default:
-						break;
-				}
-			}
+                for (var i = 0; i < gamenum; i++) {
+                    for (var j = 0; j < gamenum; j++) {
+                        if (++count < sum) {
+                            var num = i * gamenum + j
+                            var left = 20 + j * sumWidth + 'px'
+                            var top = cellWidth + i * sumWidth + 'px'
+                            var idstr = 'cell-' + num
+                            var x = parseInt((b[num] - 1) / 3)
+                            var y = parseInt((b[num] - 1) % 3)
+                            var stylestr =
+                                'left:' +
+                                left +
+                                ';top:' +
+                                top +
+                                ';background-position: -' +
+                                cellWidth * y +
+                                'px -' +
+                                cellWidth * x +
+                                'px;'
+                            html +=
+                                '<div id="' +
+                                idstr +
+                                '" class="grid-cell" data-num="' +
+                                count +
+                                '" data-b="' +
+                                b[num] +
+                                '" style="' +
+                                stylestr +
+                                '"></div>'
+                        }
+                    }
+                }
 
-			function callback() {
-				document.getElementById("steps").innerHTML = ++step;
-				var el = document.getElementById(myid);
-				var temp = cur;
-				cur = el.dataset.num;
-				el.dataset.num = temp;
-				var num = parseInt(el.dataset.b);
-				if(cur == sum && (num == sum - gamenum || num == sum - 1)) {
-					checkGame();
-				}
-			}
+                document.getElementById('steps').innerHTML = step
+                document.getElementById('grids').innerHTML = html
 
-			function afterMove(el, x, y, id) {
-				myid = id;
-				el.dataset.x = x;
-				el.dataset.y = y;
-				el.style.transform = 'translate(' + x + 'px,' + y + 'px)';
-				el.style.webkitTransform = 'translate(' + x + 'px,' + y + 'px)';
-				el.style.MozTransform = 'translate(' + x + 'px,' + y + 'px)';
-				setTimeout(function() {
-					callback();
-				}, 300);
-			}
+                setClick()
+            }
 
-			//获取随机数字串						
-			function getRandom() {
-				var a = "12345678".split('');
-				var len = a.length;
-				for(var i = 0; i < len; i++) {
-					var n = Math.floor(Math.random() * len);
-					var temp = a[n];
-					a[n] = a[i];
-					a[i] = temp;
-				}
-				return a;
-			}
+            function setClick() {
+                var list = document.getElementsByClassName('grid-cell')
+                for (var i = 0; i < sum - 1; i++) {
+                    list[i].onclick = function() {
+                        if (gameStatus === GAMESTATUSCODE.ON) {
+                            var n = this.dataset.num - cur
+                            moveByNum(this.id, n)
+                        }
+                    }
+                }
+            }
 
-			//检查游戏是否成功
-			function checkGame() {
-				var list = document.getElementsByClassName('grid-cell');
-				var win = true;
-				for(var i = 0; i < sum - 1; i++) {
-					var ele = list[i];
-					if(ele.dataset.num !== ele.dataset.b) {
-						win = false;
-						break;
-					}
-				}
-				if(win) {
-					document.getElementById("result").innerHTML = "你成功了";
-					gameStatus = 'over';
-				}
-			}
-		</script>
-	</body>
+            //检查随机数字串是否有解
+            function checkRandom(a) {
+                var b = [],
+                    count = 0
+                for (var i = 1; i < sum; i++) {
+                    b.push(getNum(a.slice(0, i), a[i]))
+                }
+                for (var i = 0; i < b.length; i++) {
+                    count += b[i]
+                }
+                count = count + sum - 1
+                return count % 2 === 0
+            }
 
+            function getNum(a, n) {
+                var count = 0
+                for (var i = 0; i < a.length; i++) {
+                    if (a[i] < n) {
+                        count++
+                    }
+                }
+                return count
+            }
+
+            function moveByNum(id, num) {
+                var el = document.getElementById(id)
+                var x = parseInt(el.dataset.x || 0)
+                var y = parseInt(el.dataset.y || 0)
+                switch (num) {
+                    case -1:
+                        afterMove(el, x + sumWidth, y, id)
+                        break
+                    case 1:
+                        afterMove(el, x - sumWidth, y, id)
+                        break
+                    case -parseInt(gamenum):
+                        afterMove(el, x, y + sumWidth, id)
+                        break
+                    case parseInt(gamenum):
+                        afterMove(el, x, y - sumWidth, id)
+                        break
+                    default:
+                        break
+                }
+            }
+
+            function callback() {
+                document.getElementById('steps').innerHTML = ++step
+                var el = document.getElementById(myid)
+                var temp = cur
+                cur = el.dataset.num
+                el.dataset.num = temp
+                var num = parseInt(el.dataset.b)
+                if (cur == sum && (num == sum - gamenum || num == sum - 1)) {
+                    checkGame()
+                }
+            }
+
+            function afterMove(el, x, y, id) {
+                myid = id
+                el.dataset.x = x
+                el.dataset.y = y
+                el.style.transform = 'translate(' + x + 'px,' + y + 'px)'
+                el.style.webkitTransform = 'translate(' + x + 'px,' + y + 'px)'
+                el.style.MozTransform = 'translate(' + x + 'px,' + y + 'px)'
+                setTimeout(function() {
+                    callback()
+                }, 300)
+            }
+
+            //获取随机数字串
+            function getRandom() {
+                var a = '12345678'.split('')
+                var len = a.length
+                for (var i = 0; i < len; i++) {
+                    var n = Math.floor(Math.random() * len)
+                    var temp = a[n]
+                    a[n] = a[i]
+                    a[i] = temp
+                }
+                return a
+            }
+
+            //检查游戏是否成功
+            function checkGame() {
+                var list = document.getElementsByClassName('grid-cell')
+                var win = true
+                for (var i = 0; i < sum - 1; i++) {
+                    var ele = list[i]
+                    if (ele.dataset.num !== ele.dataset.b) {
+                        win = false
+                        break
+                    }
+                }
+                if (win) {
+                    document.getElementById('result').innerHTML = '你成功了'
+                    gameStatus = GAMESTATUSCODE.OVER
+                }
+            }
+        </script>
+    </body>
 </html>
