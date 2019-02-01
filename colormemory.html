@@ -89,15 +89,22 @@
                 let gridEl = document.getElementById('grids')
                 for (var i = 0; i < GAMENUM; i++) {
                     for (var j = 0; j < GAMENUM; j++) {
-                        var left = 20 + j * 120 + 'px'
-                        var top = 120 + i * 120 + 'px'
-                        var stylestr = 'left:' + left + ';top:' + top
+                        var stylestr = getStyleStr({
+                            left: 20 + j * 120 + 'px',
+                            top: 120 + i * 120 + 'px'
+                        })
                         html += '<div class="grid-cell" style="' + stylestr + '"></div>'
                     }
                 }
                 gridEl.innerHTML = html
                 cellEls = gridEl.getElementsByClassName('grid-cell')
                 document.getElementById('time').innerHTML = '' + gametimes
+            }
+
+            function getStyleStr(obj) {
+                return Object.keys(obj)
+                    .map(k => k + ':' + obj[k] + ';')
+                    .join('')
             }
 
             function start() {

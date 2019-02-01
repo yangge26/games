@@ -84,13 +84,7 @@
 
                     if (moveFn) {
                         // 移动前的数据，用来对比是否移动了数据
-                        var pregrids = []
-                        for (var i = 0; i < 4; i++) {
-                            pregrids[i] = []
-                            for (var j = 0; j < 4; j++) {
-                                pregrids[i][j] = grids[i][j]
-                            }
-                        }
+                        var pregrids = JSON.parse(JSON.stringify(grids))
 
                         for (let i = 0; i < 4; i++) {
                             moveFn(i)
@@ -105,13 +99,23 @@
                 }
             }
 
+            function getStyleStr(obj) {
+                return Object.keys(obj)
+                    .map(k => k + ':' + obj[k] + ';')
+                    .join('')
+            }
+
             function initGrid() {
                 var sHtml = ''
                 for (var i = 0; i < 4; i++) {
                     grids[i] = []
                     for (var j = 0; j < 4; j++) {
                         grids[i][j] = 0
-                        let styleStr = 'left:' + (20 + j * 120) + 'px;top:' + (20 + i * 120) + 'px;'
+                        let styleStr = getStyleStr({
+                            left: 20 + j * 120 + 'px',
+                            top: 20 + i * 120 + 'px'
+                        })
+
                         sHtml += '<div class="grid-cell" style="' + styleStr + '"></div>'
                     }
                 }
@@ -121,14 +125,7 @@
 
             // 判断时候进行了移动
             function hasMove(pregrids) {
-                for (var i = 0; i < 4; i++) {
-                    for (var j = 0; j < 4; j++) {
-                        if (pregrids[i][j] !== grids[i][j]) {
-                            return true
-                        }
-                    }
-                }
-                return false
+                return JSON.stringify(pregrids) !== JSON.stringify(grids)
             }
 
             // 根据数字给宫格填充颜色
